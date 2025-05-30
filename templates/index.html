@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Clasificador de Dígitos - FastAPI</title>
+  <style>
+    body {
+      background-color: #f0f0f0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    #preview {
+      max-width: 200px;
+      margin: 10px;
+      border: 1px solid #ccc;
+      display: none;
+    }
+
+    button {
+      background-color: #007BFF;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+
+    #result {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Clasificador MNIST (FastAPI)</h1>
+
+    <form id="uploadForm" enctype="multipart/form-data" method="post" action="/predict">
+      <input type="file" id="fileInput" name="image" accept="image/*" onchange="previewImage()"><br>
+      <img id="preview" alt="Vista previa"><br>
+      <button type="submit">Predecir</button>
+    </form>
+
+    <div id="result">Predicción: ...</div>
+  </div>
+
+  <script>
+    function previewImage() {
+      const file = document.getElementById('fileInput').files[0];
+      const preview = document.getElementById('preview');
+
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          preview.src = e.target.result;
+          preview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+      } else {
+        preview.src = '';
+        preview.style.display = 'none';
+      }
+    }
+
+    document.getElementById('uploadForm').addEventListener('submit', async function(event) {
+      event.preventDefault();
+      const formData = new FormData(this);
+
+      const response = await fetch("/predict", {
+        method: "POST",
+        body: formData
+      });
+
+      const result = await response.json();
+      document.getElementById("result").innerText = "Predicción: " + result.prediction;
+    });
+  </script>
+
+</body>
+</html>
